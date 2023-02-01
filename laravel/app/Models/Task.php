@@ -5,6 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
+/**
+ * App\Models\Task
+ *
+ * @property int $id
+ * @property int $folder_id
+ * @property string $title
+ * @property string $due_date
+ * @property int $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read string $formatted_due_date
+ * @property-read string $status_class
+ * @property-read string $status_label
+ * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereFolderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Task extends Model
 {
     const STATUS = [
