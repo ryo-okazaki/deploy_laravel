@@ -20,7 +20,7 @@ class StoreResponder
         }
 
         if ($payload->getStatus() === Payload::FAILED) {
-            return $this->responseFactory->redirectToRoute('login');
+            return $this->responseFactory->redirectToRoute('register');
         }
 
         throw UndefinedStatusException::fromStatus($payload->getStatus());

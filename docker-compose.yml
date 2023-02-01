@@ -34,6 +34,19 @@ services:
       - ./docker/mysql/conf.d:/etc/mysql/conf.d
       - docker_sample_mysql_data:/var/lib/mysql
 
+  mail:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "8025:8025"
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
+    volumes:
+      - mail_sample_dir:/tmp
+
 volumes:
   docker_sample_mysql_data:
+    driver: local
+  mail_sample_dir:
     driver: local
