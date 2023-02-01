@@ -16,12 +16,11 @@ class StoreResponder
     public function handle(Payload $payload): Response
     {
         if ($payload->getStatus() === Payload::SUCCEED) {
-            return $this->responseFactory->redirectToRoute('task.index', $payload->getOutput());
+            return $this->responseFactory->view('home');
         }
 
         if ($payload->getStatus() === Payload::FAILED) {
-            return $this->responseFactory->redirectToRoute('login')
-                ->with($payload->getOutput());
+            return $this->responseFactory->redirectToRoute('login');
         }
 
         throw UndefinedStatusException::fromStatus($payload->getStatus());

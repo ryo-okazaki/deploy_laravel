@@ -20,11 +20,11 @@ class StoreAction
     public function __invoke(StoreRequest $request): Response
     {
         $command = new StoreCommand(
-            $request->get('name'),
             $request->get('email'),
+            $request->get('name'),
             $request->get('password'),
         );
 
-        return $this->responder->handle($this->usecase->run($command, $request));
+        return $this->responder->handle($this->usecase->run($command));
     }
 }

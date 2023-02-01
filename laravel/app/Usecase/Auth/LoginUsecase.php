@@ -22,9 +22,6 @@ class LoginUsecase
         if (Auth::attempt($userData, false)) {
             $request->session()->regenerate();
 
-//            $folder = Folder::where('user_id', Auth::id())->first();
-//            $current_folder_id = $folder->id;
-
             return (new Payload())
                 ->setStatus(Payload::SUCCEED);
         }

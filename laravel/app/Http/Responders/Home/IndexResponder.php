@@ -17,7 +17,7 @@ class IndexResponder
     {
         if ($payload->getStatus() === Payload::FOUND) {
 
-            if (is_null($payload->getOutput())) {
+            if (empty($payload->getOutput())) {
                 return $this->responseFactory->view('home');
             } else {
                 return $this->responseFactory->view('tasks.index', $payload->getOutput());

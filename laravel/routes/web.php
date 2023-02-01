@@ -22,7 +22,7 @@ Route::post('/login', Actions\Auth\LoginAction::class)->name('login_action');
 Route::post('/logout', Actions\Auth\LogoutAction::class)->name('logout');
 
 Route::get('/register', Actions\Auth\RegisterAction::class)->name('register');
-Route::post('/register/store', Actions\Auth\StoreAction::class)->name('store');
+Route::post('/register/store', Actions\Auth\StoreAction::class)->name('register.store');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', Actions\Home\IndexAction::class)->name('home');
