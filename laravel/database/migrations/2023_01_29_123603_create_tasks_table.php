@@ -13,14 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->increments( 'id');
+            $table->integer('folder_id')->unsigned();
+            $table->string('title', 100);
+            $table->date('due_date');
+            $table->integer('status')->default(1);
             $table->timestamps();
+
+            $table->foreign('folder_id')->references('id')->on('folders');
         });
     }
 
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('tasks');
     }
 };
