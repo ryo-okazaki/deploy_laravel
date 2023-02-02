@@ -9,25 +9,29 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class Register extends Mailable
+class ResetPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public User $user) {}
+    public function __construct(
+        private User $user,
+        private string $token
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "会員登録 {$this->user->name}様",
+            subject: 'パスワード変更フォーム',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'mail.register_notification',
+            view: 'mail.password_reset',
             with: [
-                'createdAt' => $this->user->created_at
+                'user' => $this->user,
+                'token' => $this->token,
             ]
         );
     }

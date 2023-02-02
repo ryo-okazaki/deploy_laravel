@@ -24,6 +24,14 @@ Route::post('/logout', Actions\Auth\LogoutAction::class)->name('logout');
 Route::get('/register', Actions\Auth\RegisterAction::class)->name('register');
 Route::post('/register/store', Actions\Auth\StoreAction::class)->name('register.store');
 
+Route::prefix('/password')->name('password.')->group(function () {
+    Route::get('/request', Actions\Password\RequestAction::class)->name('request');
+    Route::get('/reset/{token}/{user}', Actions\Password\ResetAction::class)->name('reset');
+
+    Route::post('/email', Actions\Password\EmailAction::class)->name('email');
+    Route::post('/update', Actions\Password\UpdateAction::class)->name('update');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/', Actions\Home\IndexAction::class)->name('home');
 
