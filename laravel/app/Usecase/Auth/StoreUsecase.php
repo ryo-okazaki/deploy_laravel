@@ -10,6 +10,7 @@ use App\Mail\Register;
 use App\Models\User;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class StoreUsecase
@@ -24,7 +25,7 @@ class StoreUsecase
             $user = User::create([
                 'name' => $command->getName(),
                 'email' => $command->getEmail(),
-                'password' => $command->getPassword(),
+                'password' => Hash::make($command->getPassword()),
             ]);
 
             Mail::to($user)->send(new Register($user));

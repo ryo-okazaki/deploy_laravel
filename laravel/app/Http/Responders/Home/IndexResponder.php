@@ -16,12 +16,11 @@ class IndexResponder
     public function handle(Payload $payload): Response
     {
         if ($payload->getStatus() === Payload::FOUND) {
+            return $this->responseFactory->view('tasks.index', $payload->getOutput());
+        }
 
-            if (empty($payload->getOutput())) {
-                return $this->responseFactory->view('home');
-            } else {
-                return $this->responseFactory->view('tasks.index', $payload->getOutput());
-            }
+        if ($payload->getStatus() === Payload::SUCCEED) {
+            return $this->responseFactory->view('home');
         }
 
         throw UndefinedStatusException::fromStatus($payload->getStatus());

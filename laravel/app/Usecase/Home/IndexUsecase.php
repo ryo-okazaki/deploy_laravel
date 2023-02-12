@@ -26,7 +26,7 @@ class IndexUsecase
                 ));
         } else {
             return (new Payload())
-                ->setStatus(Payload::FOUND);
+                ->setStatus(Payload::SUCCEED);
         }
     }
 }
