@@ -12,6 +12,7 @@ return [
     | and used as needed; however, this mailer will be used by default.
     |
     */
+    'driver' => env('MAIL_DRIVER', 'ses'),
 
     'default' => env('MAIL_MAILER', 'ses'),
 
