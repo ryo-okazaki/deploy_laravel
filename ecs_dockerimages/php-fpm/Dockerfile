@@ -21,9 +21,12 @@ COPY ./ecs_dockerimages/php-fpm/www.conf /etc/php-fpm.d/www.conf
 COPY ./ecs_dockerimages/php-fpm/php.ini /usr/local/etc/php
 COPY ./ecs_dockerimages/php-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-COPY ./laravel /var/www/laravel
-
 WORKDIR /var/www/laravel
+
+COPY ./laravel /var/www/laravel
+COPY ./laravel/.env.prd /var/www/laravel.env
+
+RUN chmod -R 777 storage
 
 RUN composer install
 
