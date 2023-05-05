@@ -1,0 +1,108 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - "README.md"
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  CONTAINER_NAME_NGINX: nginx
+  CONTAINER_NAME_LARAVEL: laravel
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # mainにマージされた時の挙動を設定
+      - name: set PRD env ROLE, ENVIRONMENT
+        if: ${{ github.ref_name == 'main' }}
+        run: |
+          echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_PRD }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=production" >> $GITHUB_ENV
+
+      - name: set env ecs
+        run: |
+          echo "ECR_REPOSITORY_NGINX=${{ secrets.ECR_REPOSITORY_NGINX }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY_LARAVEL=${{ secrets.ECR_REPOSITORY_LARAVEL }}" >> $GITHUB_ENV
+          echo "ECS_CLUSTER=${{ secrets.ECS_CLUSTER }}" >> $GITHUB_ENV
+          echo "ECS_SERVICE=${{ secrets.ECS_SERVICE }}" >> $GITHUB_ENV
+          echo "DEPLOY_APP=${{ secrets.DEPLOY_APP }}" >> $GITHUB_ENV
+          echo "DEPLOY_GROUP=${{ secrets.DEPLOY_GROUP }}" >> $GITHUB_ENV
+          echo "ECS_TASK_DEFINITION=task-definition.json" >> $GITHUB_ENV
+
+      # ソースコード取得
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # AWS認証情報設定
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # ECRにログイン
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        # ログイン成功時、ECRレジストリURLを出力
+
+      # nginxのイメージ作成、タグ付け、ビルド
+      - name: nginx Build, tag, and push image to Amazon ECR
+        id: build-image-nginx
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG -f ./ecs_dockerimages/nginx/Dockerfile .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # Laravelのイメージ作成、タグ付け、ビルド
+      - name: laravel Build, tag, and push image to Amazon ECR
+        id: build-image-laravel
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:$IMAGE_TAG -f ./ecs_dockerimages/php-fpm/Dockerfile .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_LARAVEL:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # task-definitionの自動更新
+      - name: nginx Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-nginx
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME_NGINX }}
+          image: ${{ steps.build-image-nginx.outputs.image }}
+
+      - name: laravel Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-laravel
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-nginx.outputs.task-definition }}
+          container-name: ${{ env.CONTAINER_NAME_LARAVEL }}
+          image: ${{ steps.build-image-laravel.outputs.image }}
+
+      # ECSにデプロイ
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-laravel.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          codedeploy-appspec: appspec.yaml
+          codedeploy-application: ${{ env.DEPLOY_APP }}
+          codedeploy-deployment-group: ${{ env.DEPLOY_GROUP }}
