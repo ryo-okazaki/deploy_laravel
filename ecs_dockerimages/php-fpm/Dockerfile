@@ -24,7 +24,7 @@ COPY ./ecs_dockerimages/php-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.in
 WORKDIR /var/www/laravel
 
 COPY ./laravel /var/www/laravel
-COPY ./laravel/.env.prd /var/www/laravel.env
+#COPY ./laravel/.env.prd /var/www/laravel.env
 
 RUN chmod -R 777 storage
 
