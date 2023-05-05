@@ -65,8 +65,8 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG -f ./ecs_dockerimages/nginx/Dockerfile .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:latest
-#          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
-#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_NGINX:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # Laravelのイメージ作成、タグ付け、ビルド
       - name: laravel Build, tag, and push image to Amazon ECR
