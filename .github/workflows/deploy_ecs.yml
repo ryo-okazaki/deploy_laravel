@@ -102,6 +102,7 @@ jobs:
       # ECSにデプロイ
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        timeout-minutes: 5
         with:
           task-definition: ${{ steps.task-def-laravel.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
