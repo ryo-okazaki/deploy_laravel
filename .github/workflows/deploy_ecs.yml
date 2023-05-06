@@ -7,6 +7,8 @@ on:
     paths-ignore:
       - "README.md"
 
+concurrency: ${{ github.ref_name }}
+
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   CONTAINER_NAME_NGINX: nginx
@@ -108,6 +110,6 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-          codedeploy-appspec: appspec.yaml
-          codedeploy-application: ${{ env.DEPLOY_APP }}
-          codedeploy-deployment-group: ${{ env.DEPLOY_GROUP }}
+#          codedeploy-appspec: appspec.yaml
+#          codedeploy-application: ${{ env.DEPLOY_APP }}
+#          codedeploy-deployment-group: ${{ env.DEPLOY_GROUP }}
