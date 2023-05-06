@@ -31,6 +31,23 @@ jobs:
           echo "AWS_ROLE_ARN=${{ secrets.AWS_ROLE_ARN_PRD }}" >> $GITHUB_ENV
           echo "ENVIRONMENT=production" >> $GITHUB_ENV
 
+      # AWS認証情報設定
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # ソースコード取得
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Parameter Storeから値を取得し、.envをlaravel配下に作成
+      - name: generate env
+        run: |
+          sudo sudo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} aws ssm get-parameters-by-path --region ${{ secrets.AWS_REGION }} --path '/ecs' --with-decryption | jq -r '.Parameters | map([.Name[5:], .Value] | join("=")) | join("\n")' | sudo tee laravel/.env > /dev/null
+
+      # 環境情報をセット
       - name: set env ecs
         run: |
           echo "ECR_REPOSITORY_NGINX=${{ secrets.ECR_REPOSITORY_NGINX }}" >> $GITHUB_ENV
@@ -41,16 +58,10 @@ jobs:
           echo "DEPLOY_GROUP=${{ secrets.DEPLOY_GROUP }}" >> $GITHUB_ENV
           echo "ECS_TASK_DEFINITION=task-definition.json" >> $GITHUB_ENV
 
-      # ソースコード取得
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      # AWS認証情報設定
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ env.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # テストで中断
+      - name: Do something
+        run: |
+          exit 1  # Exit with error code 1 to indicate failure
 
       # ECRにログイン
       - name: Login to Amazon ECR
@@ -103,5 +114,13 @@ jobs:
 
       # ECSにデプロイ
       - name: Deploy to Amazon ECS
-        run: |
-          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        timeout-minutes: 15
+        with:
+          task-definition: ${{ steps.task-def-laravel.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          codedeploy-appspec: appspec.yaml
+          codedeploy-application: ${{ env.DEPLOY_APP }}
+          codedeploy-deployment-group: ${{ env.DEPLOY_GROUP }}
