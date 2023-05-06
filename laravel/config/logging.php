@@ -86,6 +86,11 @@ return [
             ],
         ],
 
+        'ecs' => [
+            'driver' => 'stack',
+            'channels' => ['stderr', 'stdout'],
+        ],
+
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
