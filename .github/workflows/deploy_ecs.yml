@@ -19,6 +19,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    timeout-minutes: 15
 
     steps:
       # mainにマージされた時の挙動を設定
