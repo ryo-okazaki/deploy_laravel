@@ -21,7 +21,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    timeout-minutes: 15
+    timeout-minutes: 120
 
     steps:
       # mainにマージされた時の挙動を設定
@@ -115,7 +115,6 @@ jobs:
       # ECSにデプロイ
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        timeout-minutes: 45
         with:
           task-definition: ${{ steps.task-def-laravel.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
