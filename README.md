@@ -1,9 +1,10 @@
-# APP名：deploy_laravel
+# APP名
+deploy_laravel
 
 # 構成
 ・PHP：8.2  
 ・Laravel：9.0  
-・Composer：Latest（2023-5-7）  
+・Composer：Latest（2023-05-07時点）  
 ・Nginx：1.23.2  
 
 # ローカル環境初期構築
