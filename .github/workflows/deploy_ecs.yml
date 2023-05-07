@@ -58,10 +58,10 @@ jobs:
           echo "DEPLOY_GROUP=${{ secrets.DEPLOY_GROUP }}" >> $GITHUB_ENV
           echo "ECS_TASK_DEFINITION=task-definition.json" >> $GITHUB_ENV
 
-      # テストで中断
-      - name: Do something
-        run: |
-          exit 1  # Exit with error code 1 to indicate failure
+      # デバッグ用
+#      - name: Exit
+#        run: |
+#          exit 1
 
       # ECRにログイン
       - name: Login to Amazon ECR
